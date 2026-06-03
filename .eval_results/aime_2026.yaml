@@ -1,0 +1,9 @@
+- dataset:
+    id: MathArena/aime_2026
+    task_id: MathArena/aime_2026
+  value: 77.5
+  date: '2026-05-23'
+  notes: No tools
+  source:
+    url: https://huggingface.co/google/gemma-4-12B-it
+    name: Model Card
