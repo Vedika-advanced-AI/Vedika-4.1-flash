@@ -1,0 +1,8 @@
+- dataset:
+    id: Idavidrein/gpqa
+    task_id: diamond
+  value: 78.8
+  date: '2026-05-23'
+  source:
+    url: https://huggingface.co/google/gemma-4-12B-it
+    name: Model Card
