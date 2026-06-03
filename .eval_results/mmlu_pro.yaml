@@ -1,0 +1,8 @@
+- dataset:
+    id: TIGER-Lab/MMLU-Pro
+    task_id: mmlu_pro
+  value: 77.2
+  date: '2026-05-23'
+  source:
+    url: https://huggingface.co/google/gemma-4-12B-it
+    name: Model Card
