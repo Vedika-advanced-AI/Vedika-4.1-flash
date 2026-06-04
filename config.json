@@ -106,7 +106,7 @@
       "sliding_attention",
       "full_attention"
     ],
-    "max_position_embeddings": 131072,
+    "max_position_embeddings": 262144,
     "model_type": "gemma4_unified_text",
     "moe_intermediate_size": null,
     "num_attention_heads": 16,
