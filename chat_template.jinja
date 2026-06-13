@@ -359,8 +359,7 @@
         {%- set continues_into_next = (
             role == 'model'
             and next_nt.role == 'assistant'
-            and not message.get('tool_calls')
-            and not ns_tr_out.flag
+            and (not message.get('tool_calls') or ns_tr_out.flag)
         ) -%}
 
         {%- if ns.prev_message_type == 'tool_call' and not ns_tr_out.flag -%}
