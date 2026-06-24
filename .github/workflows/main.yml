@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: false  # इसे false कर दिया है ताकि 404 एरर न आए और चेकआउट पास हो जाए
+          lfs: false  # GitHub 404 एरर से बचने के लिए इसे false ही रखें
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -19,28 +19,15 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # Hugging Face लाइब्रेरी इंस्टॉल करें (यह अपने आप नया 'hf' टूल ले आएगा)
           pip install huggingface_hub
-          huggingface-cli login --token $HF_TOKEN
           
-          # LFS सेटिंग्स एप्लाई करें
-          huggingface-cli lfs-enable-largefiles .
-          
-          git config --global user.email "bot@github.com"
-          git config --global user.name "GitHub Action"
+          # नए hf टूल से लॉगिन करें
+          hf auth login --token $HF_TOKEN
           
           # 1. समस्या वाली इमेजेज को हटा दें
           rm -rf docs/images/
           
-          # 2. नई ब्रांच बनाएं
-          git checkout --orphan hf-deploy
-          
-          # 3. LFS ट्रैक को पक्का करें 
-          git lfs install
-          git lfs track "*.safetensors"
-          
-          # 4. फाइलों को जोड़ें
-          git add .
-          git commit -m "Clean deploy Veda-Labs/Vedika-4.1-flash (Code synced via Actions)"
-          
-          # 5. फोर्स पुश करें
-          git push -f https://oauth2:$HF_TOKEN@huggingface.co/Veda-Labs/Vedika-4.1-flash hf-deploy:main
+          # 2. नए टूल से सीधे फाइल्स अपलोड करें
+          # यह बिना Git का इस्तेमाल किए, सीधे आपकी रिपॉजिटरी में फाइल्स सिंक कर देगा!
+          hf upload Veda-Labs/Vedika-4.1-flash . .
