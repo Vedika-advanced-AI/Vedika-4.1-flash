@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: false  # GitHub 404 एरर से बचने के लिए इसे false ही रखें
+          lfs: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -19,15 +19,11 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Hugging Face लाइब्रेरी इंस्टॉल करें (यह अपने आप नया 'hf' टूल ले आएगा)
           pip install huggingface_hub
-          
-          # नए hf टूल से लॉगिन करें
           hf auth login --token $HF_TOKEN
           
-          # 1. समस्या वाली इमेजेज को हटा दें
           rm -rf docs/images/
           
-          # 2. नए टूल से सीधे फाइल्स अपलोड करें
-          # यह बिना Git का इस्तेमाल किए, सीधे आपकी रिपॉजिटरी में फाइल्स सिंक कर देगा!
-          hf upload Veda-Labs/Vedika-4.1-flash . .
+          # यहाँ हमने --exclude कमांड जोड़ दिया है। 
+          # अब यह टूल safetensors, json और LFS फाइलों को छोड़कर बाकी सब सिंक कर देगा।
+          hf upload Veda-Labs/Vedika-4.1-flash . . --exclude "*.safetensors" --exclude "*.json" --exclude ".gitattributes" --exclude ".git/*"
