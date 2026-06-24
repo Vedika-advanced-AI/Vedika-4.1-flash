@@ -1,6 +1,6 @@
 ---
 library_name: transformers
-license: custom
+license: apache-2.0
 license_link: https://vedika-advanced-ai.github.io/Terms-and-conditions/
 pipeline_tag: any-to-any
 base_model:
