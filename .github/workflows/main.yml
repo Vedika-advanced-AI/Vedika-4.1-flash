@@ -7,23 +7,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true  # LFS फाइलों को सही से प्रोसेस करने के लिए
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # 5GB से बड़ी फाइलों के लिए हगिंग फेस CLI टूल इंस्टॉल करें
+          pip install huggingface_hub
+          huggingface-cli login --token $HF_TOKEN
+          
+          # यह कमांड रिपॉजिटरी में 5GB+ फाइलों (जैसे safetensors) को अपलोड करने की परमिशन देता है
+          huggingface-cli lfs-enable-largefiles .
+          
           git config --global user.email "bot@github.com"
           git config --global user.name "GitHub Action"
           
-          # 1. अगर कोई समस्या वाली इमेजेज या बड़ी फाइल्स हटानी हों (इसे आप अपनी जरूरत के अनुसार बदल सकते हैं)
+          # 1. समस्या वाली इमेजेज को हटा दें
           rm -rf docs/images/
           
-          # 2. एक बिल्कुल नई ब्रांच (hf-deploy) बनाएं, जिसमें कोई पुरानी हिस्ट्री न हो
+          # 2. नई ब्रांच बनाएं
           git checkout --orphan hf-deploy
           
-          # 3. सिर्फ मौजूदा साफ फाइलों को जोड़ें
-          git add .
-          git commit -m "Clean deploy Veda-Labs/Vedika-4.1-flash to Hugging Face without LFS history"
+          # 3. LFS ट्रैक को पक्का करें (यह जरूरी है ताकि .gitattributes सही से सेट हो जाए)
+          git lfs install
+          git lfs track "*.safetensors"
           
-          # 4. इस साफ ब्रांच को हगिंग फेस के main पर जबरदस्ती (force) डाल दें
-          # ध्यान दें: मॉडल के लिए लिंक में '/spaces/' नहीं लगता है।
+          # 4. फाइलों को जोड़ें
+          git add .
+          git commit -m "Clean deploy Veda-Labs/Vedika-4.1-flash with 5GB+ file support"
+          
+          # 5. फोर्स पुश करें
           git push -f https://oauth2:$HF_TOKEN@huggingface.co/Veda-Labs/Vedika-4.1-flash hf-deploy:main
