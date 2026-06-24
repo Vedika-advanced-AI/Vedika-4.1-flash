@@ -1,32 +1,29 @@
-name: Sync Veda Labs Model to Hugging Face
-
+name: Sync to Hugging Face
 on:
   push:
-    branches:
-      - main  # जब भी आप main ब्रांच में कुछ पुश करेंगे, यह अपने आप चल जाएगा
-  workflow_dispatch:  # आप इसे गिटहब एक्शंस टैब से मैन्युअल रूप से भी चला सकते हैं
-
+    branches: [main]
 jobs:
-  sync-to-hub:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          lfs: true  # मॉडल की बड़ी फ़ाइलों (Safetensors/Bin) के लिए यह अनिवार्य है
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Hugging Face Hub
-        run: pip install -U huggingface_hub
-
-      - name: Push to Hugging Face
+      - uses: actions/checkout@v4
+      - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # यह कमांड रिपॉजिटरी की सभी फाइलों को Hugging Face पर अपलोड कर देगा
-          huggingface-cli upload Veda-Labs/Vedika-4.1-flash ./ . --repo-type model --token $HF_TOKEN
+          git config --global user.email "bot@github.com"
+          git config --global user.name "GitHub Action"
+          
+          # 1. अगर कोई समस्या वाली इमेजेज या बड़ी फाइल्स हटानी हों (इसे आप अपनी जरूरत के अनुसार बदल सकते हैं)
+          rm -rf docs/images/
+          
+          # 2. एक बिल्कुल नई ब्रांच (hf-deploy) बनाएं, जिसमें कोई पुरानी हिस्ट्री न हो
+          git checkout --orphan hf-deploy
+          
+          # 3. सिर्फ मौजूदा साफ फाइलों को जोड़ें
+          git add .
+          git commit -m "Clean deploy Veda-Labs/Vedika-4.1-flash to Hugging Face without LFS history"
+          
+          # 4. इस साफ ब्रांच को हगिंग फेस के main पर जबरदस्ती (force) डाल दें
+          # ध्यान दें: मॉडल के लिए लिंक में '/spaces/' नहीं लगता है।
+          git push -f https://oauth2:$HF_TOKEN@huggingface.co/Veda-Labs/Vedika-4.1-flash hf-deploy:main
