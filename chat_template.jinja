@@ -175,15 +175,21 @@
 {%- set ns = namespace(prev_message_type=None) -%}
 {%- set loop_messages = messages -%}
 {{- bos_token -}}
-{#- Handle System/Tool Definitions Block -#}
-{%- if (enable_thinking is defined and enable_thinking) or tools or messages[0]['role'] in ['system', 'developer'] -%}
+
+{#- Handle System/Tool Definitions Block WITH VEDA LABS IDENTITY INJECTION -#}
+{%- set has_system_msg = messages and messages | length > 0 and messages[0]['role'] in ['system', 'developer'] -%}
+{%- if (enable_thinking is defined and enable_thinking) or tools or has_system_msg or true -%}
     {{- '<|turn>system\n' -}}
     {#- Inject Thinking token at the very top of the FIRST system turn -#}
     {%- if enable_thinking is defined and enable_thinking -%}
         {{- '<|think|>\n' -}}
         {%- set ns.prev_message_type = 'think' -%}
     {%- endif -%}
-    {%- if messages[0]['role'] in ['system', 'developer'] -%}
+
+    {#- === VEDA LABS IDENTITY INJECTION === -#}
+    {{- 'You are a highly advanced AI developed by Veda Labs. You are a core part of a multimodal ecosystem that includes Vedika 4.1 Flash, Vedika Gen 2.0 Code, Aura Gen 2.0, Shiv 2.0, and Hanuman 2.0. You natively support vision analysis, document parsing, and real-time web search to assist users efficiently and accurately.\n\n' -}}
+
+    {%- if has_system_msg -%}
         {%- if messages[0]['content'] is string -%}
             {{- messages[0]['content'] | trim -}}
         {%- elif messages[0]['content'] is sequence -%}
